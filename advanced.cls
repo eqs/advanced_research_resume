@@ -35,8 +35,8 @@
   \def\@seccnt@afterskip@subsection{\hskip 1em}
   \def\@seccnt@afterskip@subsubsection{\hskip 1em}
 \makeatother
-\renewcommand{\thesubsection}{\arabic{section}$\cdot$\arabic{subsection}}
-\renewcommand{\thesubsubsection}{\arabic{section}$\cdot$\arabic{subsection}$\cdot$\arabic{subsubsection}}
+\renewcommand{\thesubsection}{\arabic{section}\hskip.1em$\cdot$\hskip.1em\arabic{subsection}}
+\renewcommand{\thesubsubsection}{\arabic{section}\hskip.1em$\cdot$\hskip.1em\arabic{subsection}\hskip.1em$\cdot$\hskip.1em\arabic{subsubsection}}
 
 %参考文献を年報スタイルに
 \makeatletter
@@ -82,47 +82,24 @@
 \makeatother
 
 \makeatletter
-  % sectionのfontsizeを普通に
+  % sectionをめっちゃ太くする
+  \renewcommand{\headfont}{\bfseries}
   \renewcommand{\section}{
     \@startsection{section}{1}{\z@}%
     {0.6\Cvs}{\z@}%
-    {\normalfont\normalsize\headfont\raggedright}}
+    {\normalfont\fontsize{11pt}{14pt}\headfont\raggedright\centering}}
   % subsectionを1字下げる
   \renewcommand{\subsection}{
-    \@startsection{subsection}{2}{1em}%
+    \@startsection{subsection}{2}{\z@}%
     {\z@}{\z@}%
-    {\normalfont\normalsize\headfont}}
+    {\normalfont\fontsize{10pt}{14pt}\headfont\centering}}
   % subsectionを1字下げる
   \renewcommand{\subsubsection}{
-    \@startsection{subsubsection}{3}{1em}%
+    \@startsection{subsubsection}{3}{\z@}%
     {\z@}{\z@}%
-    {\normalfont\normalsize\headfont}}
+    {\normalfont\fontsize{10pt}{14pt}\headfont\centering}}
 \makeatother
 
-%キャプションの様式をゴシックに
-\makeatletter
-\long\def\@makecaption#1#2{\sf
-\vskip\abovecaptionskip
-\iftdir\sbox\@tempboxa{#1\hskip1zw#2}
-\else\sbox\@tempboxa{#1~ #2}
-\fi
-\ifdim \wd\@tempboxa >\hsize
-\iftdir #1\hskip1zw#2\relax\par
-\else #1~ #2\relax\par\fi
-\else
-\global \@minipagefalse
-\hbox to\hsize{\hfil\box\@tempboxa\hfil}
-\fi
-\vskip\belowcaptionskip}
-\makeatother
-
-%アブストラクトの様式は引用で実現
-\renewenvironment{quote}
-{\list{}{
-\rightmargin=10mm
-\leftmargin=10mm
-\topsep=0mm
-}\item\relax}{\endlist}
 
 % maketitle
 \makeatletter
@@ -155,57 +132,28 @@
     \global\let\@title\@empty
     \global\let\title\relax
     \global\let\author\relax
-    \global\let\etitle\relax
-    \global\let\@etitle\@empty
-    \global\let\eauthor\relax
-    \global\let\@eauthor\@empty
-    \global\let\abstract\relax
-    \global\let\@abstract\@empty
-    \global\let\keywords\relax
-    \global\let\@keywords\@empty
+    \global\let\major\relax
+    \global\let\@major\@empty
     \global\let\and\relax
   }
   \def\@maketitle{%
     \newpage\null
-    \vskip -10pt
+    \vskip -15pt
     \begin{center}%
       \let\footnote\thanks
-      {\LARGE \sf \@title \par}%
-      \vskip 10pt
+	  {\fontsize{16.5pt}{0pt} \bfseries \@title \par}%
+      \vskip 30pt
       {
         \lineskip .5em
         \begin{tabular}[t]{c}%
-          \@author
+			{\large\@author}
         \end{tabular}\par}%
-      \vskip 10pt
-      {\large \@etitle \par}%
-      \vskip 10pt
-      {
-        \lineskip .5em
-        \begin{tabular}[t]{c}%
-          \@eauthor
-        \end{tabular}\par}%
-      \vskip 10pt
+      \vskip 5pt
+      {\large 徳山高専　　\@major \par}%
+      \vskip 20pt
     \end{center}%
-    \begin{center}
-      {\bf ABSTRACT}%
-      \vskip 10pt
-    \end{center}
-    \begin{quote}%
-      \hskip 22pt
-      {\@abstract \par}%
-    \end{quote}%
-    \vskip 10pt
-    \begin{center}
-      {\bf KEY WORDS} {\rm: \@keywords \par}%
-    \end{center}
-    \par\vskip 30pt
-    \ifvoid\@abstractbox\else\centerline{\box\@abstractbox}\vskip1.5em\fi
   }
-  \long\def\etitle#1{\long\gdef\@etitle{#1}}
-  \long\def\eauthor#1{\long\gdef\@eauthor{#1}}
-  \long\def\abstract#1{\long\gdef\@abstract{#1}}
-  \long\def\keywords#1{\long\gdef\@keywords{#1}}
+  \long\def\major#1{\long\gdef\@major{#1}}
 \makeatother
 
 % 図と図の間のスペース
@@ -216,3 +164,10 @@
 \setlength\intextsep{3truemm}
 % 図とキャプションの間のスペース
 \setlength\abovecaptionskip{10pt}
+
+% 「参考文献」を「文献」に変更する
+\renewcommand{\refname}{\centering \fontsize{11pt}{0pt}文　　献}
+
+% ページ番号を消す
+\pagestyle{empty}
+
