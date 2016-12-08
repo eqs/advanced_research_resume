@@ -1,5 +1,10 @@
+% advanced_research_resume.tex v1.0
+% Copyright 2016 Satoshi MURASHIGE
+% The MIT License
+% Based on format_nenpo (https://github.com/codeforkosen/format_nenpo) by Masayuki IZUMI
+
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesClass{anct}
+\ProvidesClass{advanced}
 \LoadClass[10pt, a4paper, twocolumn]{jsarticle}
 
 %用紙設定
@@ -162,7 +167,7 @@
   }
   \def\@maketitle{%
     \newpage\null
-    \vskip 30pt
+    \vskip -10pt
     \begin{center}%
       \let\footnote\thanks
       {\LARGE \sf \@title \par}%
