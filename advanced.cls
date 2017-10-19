@@ -61,7 +61,89 @@
 \llap{\@makefnmark\hskip0.3zw}#1}
 \makeatother
 
+\makeatletter
+\def\kintou#1#2{%
+	\hbox to#1{\kanjiskip=0pt plus 1fill minus 1fill \xkanjiskip=\kanjiskip #2}%
+}
+
+\def\jidoukintou#1{%
+	\settowidth{\@tempdima}{#1}% 文字列の長さを測る
+	\@jidoukintou{\@tempdima}{#1}%
+}
+
+\def\@jidoukintou#1#2{%条件判断の内部マクロ
+	\ifdim#1<5zw%
+		\kintou{5zw}{#2}%
+	\else%
+		\hbox{#2}%
+	\fi%
+}
+
+\def\xKintou#1#2{%
+	\@tempcnta=0%
+	\@tfor\STR:=#2\do{\advance\@tempcnta\@ne}%
+	\@tempcntb=\@tempcnta%
+	\leavevmode%
+	\hbox to #1{%
+		\@tfor\STR:=#2\do{\advance\@tempcnta\@ne \STR%
+				\ifnum\@tempcnta<\@tempcntb\hfill\fi%
+			}%
+	}%
+}%
+
+\def\@sect#1#2#3#4#5#6[#7]#8{%
+	\ifnum #2>\c@secnumdepth% 番号出力があるかどうかの条件
+		\def\@svsec{}%
+	\else%
+		\refstepcounter{#1}% カウンターを1増やす
+		\edef\@svsec{\csname the#1\endcsname.\hskip 1em}% 番号出力の形式
+	\fi%
+	\@tempskipa #5\relax% 空白をスキップに設定
+	\ifdim \@tempskipa>\z@% スキップが正のとき，見出しで改行する
+		\begingroup #6\relax%書体の設定
+			\@hangfrom{\hskip #3\relax\@svsec}% 番号出力
+				{\interlinepenalty \@M \jidoukintou{#8}\par}%タイトルを均等割り
+		\endgroup%
+		%#7が無いときは#8を#7に複写する
+		\csname #1mark\endcsname{#7}%
+		\addcontentsline{toc}{#1}{%tocファイルへ出力
+			\ifnum #2>\c@secnumdepth\else%
+			\protect\numberline{\csname the#1\endcsname}\fi #7%
+		}%
+	\else%スキップが負のとき，見出しのあと改行しない
+		\def\@svsechd{%
+			\begingroup%
+				#6\hskip #3\@svsec \jidoukintou{#8}%タイトルを均等割り
+				\csname #1mark\endcsname{#7}%
+				\addcontentsline{toc}{#1}{%tocファイルへの出力
+					\ifnum #2>\c@secnumdepth\else%
+					\protect\numberline{\csname the#1\endcsname}\fi #7%
+				}%
+				\par%
+			\endgroup%
+		}%
+		\@svsechd%
+	\fi%
+	\@xsect{#5}%
+}
+
+%%%% スターつきのセクション
+\def\@ssect#1#2#3#4#5{%番号出力なし，見出し均等割り
+	\@tempskipa #3\relax%空白をスキップに設定
+	\ifdim \@tempskipa>\z@%スキップが正なら見出しで改行する
+		\begingroup #4%
+			\@hangfrom{\hskip #1}{\interlinepenalty \@M \jidoukintou{#5}\par}
+		\endgroup%
+	\else%スキップが負のときは見出しのあとの改行無し
+		\def\@svsechd{\begingroup #4\hskip #1\relax \jidoukintou{#5}\par\endgroup}% タイトルを均等割り
+		\@svsechd
+	\fi%
+	\@xsect{#3}%
+}%
+\makeatother
+
 %ページ先頭のセクションの上余白をなくす
+%\@startsection{NAME}{LEVEL}{INDENT}{BEFORESKIP}{AFTERSKIP}{STYLE}
 \makeatletter
 \def\@startsection#1#2#3#4#5#6{
 \if@noskipsec \leavevmode \fi
@@ -92,14 +174,13 @@
   \renewcommand{\subsection}{
     \@startsection{subsection}{2}{\z@}%
     {\z@}{\z@}%
-    {\normalfont\fontsize{10pt}{14pt}\headfont\centering}}
+    {\normalfont\fontsize{10pt}{14pt}\headfont}}
   % subsectionを1字下げる
   \renewcommand{\subsubsection}{
     \@startsection{subsubsection}{3}{\z@}%
     {\z@}{\z@}%
-    {\normalfont\fontsize{10pt}{14pt}\headfont\centering}}
+    {\normalfont\fontsize{10pt}{14pt}\headfont}}
 \makeatother
-
 
 % maketitle
 \makeatletter
@@ -146,7 +227,7 @@
       {
         \lineskip .5em
         \begin{tabular}[t]{c}%
-			{\large\@author}
+			{\large\xKintou{10zw}{\@author}}
         \end{tabular}\par}%
       \vskip 5pt
       {\large 徳山高専　　\@major \par}%
@@ -166,7 +247,7 @@
 \setlength\abovecaptionskip{10pt}
 
 % 「参考文献」を「文献」に変更する
-\renewcommand{\refname}{\centering \fontsize{11pt}{0pt}文　　献}
+\renewcommand{\refname}{文献}
 
 % ページ番号を消す
 \pagestyle{empty}
