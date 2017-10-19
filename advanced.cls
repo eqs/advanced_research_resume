@@ -22,32 +22,6 @@
 \setlength{\footskip}{12truemm}
 \setlength{\skip\footins}{3pt plus 5pt minus 2pt}
 
-% 文字列を等間隔で配置するマクロ
-\newlength{\sectionlength}
-\makeatletter
-%\newcommand{\kintou}[2]{%
-%	\settowidth{\sectionlength}{#2}
-%	\ifdim#1>\sectionlength%
-%		\leavevmode\hbox to #1{\kanjiskip\z@ plus 1fill minus 1fill\xkanjiskip\kanjiskip #2\hfil}%
-%	\else%
-%		#2%
-%	\fi%
-%}%
-\def\kintou#1#2{%
-	\settowidth{\sectionlength}{#2}
-	\ifdim#1>\sectionlength%
-		\leavevmode\hbox to #1{\kanjiskip\z@ plus 1fill minus 1fill\xkanjiskip\kanjiskip #2\hfil}%
-	\else%
-		#2%
-	\fi
-}
-\makeatother
-
-%\def\old@sect\@sect
-%\def\@sect#1#2#3#4#5#6[#7]#8{%
-%	\old@sect{#1}{#2}{#3}{#4}{#5}{#6}[#7]{\kintou{10zw}{#8}}%
-%}
-
 %定義変更
 %セクションを年報スタイルに
 \makeatletter
@@ -105,6 +79,18 @@
 	\fi%
 }
 
+\def\xKintou#1#2{%
+	\@tempcnta=0%
+	\@tfor\STR:=#2\do{\advance\@tempcnta\@ne}%
+	\@tempcntb=\@tempcnta%
+	\leavevmode%
+	\hbox to #1{%
+		\@tfor\STR:=#2\do{\advance\@tempcnta\@ne \STR%
+				\ifnum\@tempcnta<\@tempcntb\hfill\fi%
+			}%
+	}%
+}%
+
 \def\@sect#1#2#3#4#5#6[#7]#8{%
 	\ifnum #2>\c@secnumdepth% 番号出力があるかどうかの条件
 		\def\@svsec{}%
@@ -126,13 +112,17 @@
 		}%
 	\else%スキップが負のとき，見出しのあと改行しない
 		\def\@svsechd{%
-			#6\hskip #3\@svsec \jidoukintou{#8}%タイトルを均等割り
-			\csname #1mark\endcsname{#7}%
-			\addcontentsline{toc}{#1}{%tocファイルへの出力
-				\ifnum #2\c@secnumdepth\else%
-				\protect\numberline{\csname the#1\endcsname}\fi #7%
-			}%
+			\begingroup%
+				#6\hskip #3\@svsec \jidoukintou{#8}%タイトルを均等割り
+				\csname #1mark\endcsname{#7}%
+				\addcontentsline{toc}{#1}{%tocファイルへの出力
+					\ifnum #2>\c@secnumdepth\else%
+					\protect\numberline{\csname the#1\endcsname}\fi #7%
+				}%
+				\par%
+			\endgroup%
 		}%
+		\@svsechd%
 	\fi%
 	\@xsect{#5}%
 }
@@ -142,10 +132,11 @@
 	\@tempskipa #3\relax%空白をスキップに設定
 	\ifdim \@tempskipa>\z@%スキップが正なら見出しで改行する
 		\begingroup #4%
-			\@hangfrom{\hskip #1}{\interlinepenalty \@M \jidoukintou{#5}\par}%
+			\@hangfrom{\hskip #1}{\interlinepenalty \@M \jidoukintou{#5}\par}
 		\endgroup%
 	\else%スキップが負のときは見出しのあとの改行無し
-		\def\@svsechd{#4\hskip #1\relax \jidoukintou{#5}}% タイトルを均等割り
+		\def\@svsechd{\begingroup #4\hskip #1\relax \jidoukintou{#5}\par\endgroup}% タイトルを均等割り
+		\@svsechd
 	\fi%
 	\@xsect{#3}%
 }%
@@ -236,7 +227,7 @@
       {
         \lineskip .5em
         \begin{tabular}[t]{c}%
-			{\large\@author}
+			{\large\xKintou{10zw}{\@author}}
         \end{tabular}\par}%
       \vskip 5pt
       {\large 徳山高専　　\@major \par}%
